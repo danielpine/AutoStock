@@ -40,12 +40,12 @@ def coordinateSystemProbabilityDistributionAnalysis(SingalNumberNumpyArray,numar
     #print([rr,cc])
     center=[int(rr/2)+1,int(cc/2)]
     #print(center)
+    #ON 第一象限
     #TW 第二象限
     #TH 第三象限
     #FO 第四象限
     
     [Ox,Oy]=center
-    #ON 第一象限
     """
     print(imm[0:Ox,Oy:cc])
     print(imm[0:Ox,0:Oy])
