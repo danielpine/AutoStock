@@ -1,0 +1,4 @@
+application:
+  env: DEV
+  log:
+    level: INFO # [ERROR,WARNING,WARN,INFO,DEBUG,NOSET]

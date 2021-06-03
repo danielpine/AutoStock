@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Orange</title>
+    <link
+      rel="shortcut icon"
+      style="color: lightgreen"
+      href="/icon.png"
+      type="image/x-icon"
+    />
+    <style type="text/css">
+      @import url("lib/element-ui/theme-chalk/index.css");
+
+      body {
+        margin: 0;
+        padding: 0;
+        border: none;
+        background-color: aliceblue;
+      }
+
+      .el-aside {
+        color: #fff;
+      }
+
+      .el-menu-item i {
+        color: #fff;
+      }
+
+      .el-menu-item.is-active {
+        background-color: gray !important;
+      }
+
+      /* 避免为渲染前显示vue代码 */
+      [v-cloak] {
+        display: none;
+      }
+    </style>
+  </head>
+
+  <body>
+    <script src="lib/vue/vue.js"></script>
+    <script src="lib/element-ui/index.js"></script>
+    <div id="app" v-cloak style="overflow: hidden">
+      <el-container>
+        <el-aside
+          :style="{'background-color': 'black', width: isCollapse ? '65px' : '200px', height: '100vh', position: 'fixed'}"
+        >
+          <div
+            style="width: 40px; height: 40px; margin: 12px"
+            :style="logo()"
+          ></div>
+          <el-menu
+            default-active="0"
+            @select="selectItem"
+            background-color="black"
+            text-color="#fff"
+            active-text-color="#00ff9c"
+            :collapse-transition="false"
+            :collapse="isCollapse"
+            style="border-right: none"
+          >
+            <el-menu-item index="0">
+              <i class="el-icon-orange"></i>
+              <span slot="title">Monitor</span>
+            </el-menu-item>
+            <el-menu-item index="1">
+              <i class="el-icon-finished"></i>
+              <span slot="title">Execute</span>
+            </el-menu-item>
+            <el-menu-item index="2">
+              <i class="el-icon-monitor"></i>
+              <span slot="title">Host & Group</span>
+            </el-menu-item>
+            <el-menu-item index="3">
+              <i class="el-icon-s-operation"></i>
+              <span slot="title">Scripts</span>
+            </el-menu-item>
+            <el-menu-item index="4">
+              <i class="el-icon-odometer"></i>
+              <span slot="title">Dashboard</span>
+            </el-menu-item>
+            <el-menu-item index="5">
+              <i class="el-icon-truck"></i>
+              <span slot="title">Stream</span>
+            </el-menu-item>
+            <el-menu-item index="6">
+              <i class="el-icon-document"></i>
+              <span slot="title">Document</span>
+            </el-menu-item>
+          </el-menu>
+          <el-button
+            style="
+              margin-left: 24px;
+              font-size: 18px;
+              position: fixed;
+              bottom: 0;
+              color: #fff;
+            "
+            type="text"
+            @click="toggle()"
+          >
+            <i
+              :class="{ 'el-icon-arrow-right': isCollapse, 'el-icon-arrow-left': !isCollapse }"
+            ></i>
+          </el-button>
+        </el-aside>
+        <el-main
+          v-loading="loading"
+          element-loading-text="Loading..."
+          element-loading-spinner="el-icon-loading"
+          element-loading-background="#333"
+          :style="{'margin-left': isCollapse ? '65px' : '200px', height: '100vh', padding: 0}"
+          style="overflow: hidden"
+        >
+          <iframe
+            frameborder="0"
+            id="iframe"
+            style="width: 100%; height: 100%"
+            :src="activeUrl"
+          ></iframe>
+        </el-main>
+      </el-container>
+    </div>
+    <script>
+      var vm = new Vue({
+        el: "#app",
+        data: {
+          isCollapse: true,
+          activeIndex: 0,
+          activeUrl: "monitor.html",
+          loading: true,
+          paths: {
+            0: "monitor.html",
+            1: "execute.html",
+            2: "hostgroup.html",
+            3: "scripts.html",
+            4: "dashboard.html",
+            5: "stream.html",
+            6: "scripts.html",
+          },
+        },
+        methods: {
+          logo() {
+            var stlye = {
+              "-moz-background-size": "100% 100%",
+              "background-size": "100% 100%",
+              height: "40px",
+            };
+            if (this.isCollapse) {
+              stlye["background-image"] = "url(icon.gif)";
+              stlye["width"] = "40px";
+            } else {
+              stlye["background-image"] = "url(iconname.png)";
+              stlye["width"] = "66px";
+            }
+            return stlye;
+          },
+          toggle() {
+            this.isCollapse = !this.isCollapse;
+          },
+          selectItem(index) {
+            this.loading = true;
+            if (this.activeUrl == this.paths[index]) {
+              document.getElementById("iframe").contentWindow.location.reload();
+            } else {
+              this.activeIndex = index;
+              this.activeUrl = this.paths[index];
+            }
+          },
+        },
+      });
+    </script>
+  </body>
+</html>

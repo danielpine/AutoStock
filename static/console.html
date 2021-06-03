@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Pricing Test</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <script src="js/vue.js"></script>
+    <script src="js/settings.js"></script>
+    <script src="js/jquery-2.1.1.min.js"></script>
+    <script src="layer/layer.js"></script>
+    <style>
+        input {
+            margin-left: 15px;
+        }
+        
+        div {
+            width: 800px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        {{ message }} <br> <br> {{ info }} <br>
+        <button type="button" @click="send">Send</button>
+        <br> <br> <br>
+        <div>
+            HOST:&nbsp;&nbsp;&nbsp;&nbsp;
+            <table>
+                <tr v-for="node,idx in nodes" :key=idx+node.ip>
+                    <td><label><input @change="changeIp()" type="checkbox" name="nodes"
+                                :value=node.ip>{{node.ip}}</label></td>
+                    <td>{{node.status}}</td>
+                </tr>
+            </table>
+            <br> CMDS:
+            <div style="margin-left: 50px;" v-for="cmd,index in post_data.cmds" :key=index>
+                &nbsp;
+                <button type="button" @click="deg(index)">-</button> &nbsp;
+                <button type="button" @click="add(index)">+</button> &nbsp; #{{index+1}} <br>
+                <textarea type="input" v-model="post_data.cmds[index]" style="width: 80%; min-height: 100px;"></textarea>
+                <br>
+                <hr width="500px" align="left">
+            </div>
+            OUTPUT: <br>
+            <div v-for="v,k in output" :key=k>
+                <div style="margin-left: 50px; width: 80%;">{{k}} &nbsp; {{timeFormat(v.timestamp)}}&nbsp;Finished in {{ v.ms }} ms</div> 
+                <textarea type="text" readonly v-model="v.data" style="margin-left: 50px; width: 80%; min-height: 100px;"></textarea>
+            </div>
+        </div>
+        <br>
+    </div>
+</body>
+
+<script>
+    function dateFtt(fmt, date) {
+        var o = {
+            "M+": date.getMonth() + 1, //月份 
+            "d+": date.getDate(), //日 
+            "h+": date.getHours(), //小时 
+            "m+": date.getMinutes(), //分 
+            "s+": date.getSeconds(), //秒 
+            "q+": Math.floor((date.getMonth() + 3) / 3), //季度 
+            "S": date.getMilliseconds() //毫秒 
+        };
+        if (/(y+)/.test(fmt))
+            fmt = fmt.replace(RegExp.$1, (date.getFullYear() + "").substr(4 - RegExp.$1.length));
+        for (var k in o)
+            if (new RegExp("(" + k + ")").test(fmt))
+                fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k])
+                    .length)));
+        return fmt;
+    }
+
+    var vm = new Vue({
+        el: "#app",
+        data: {
+            message: "Hello Orange Shell Manager123",
+            info: '',
+            output: '',
+            host: '',
+            post_data: {
+                "code": 1001,
+                "cmds": ["hostname"]
+            },
+            nodes: [],
+            select_nodes: []
+        },
+        mounted() {
+            $.ajax({
+                type: 'GET',
+                url: '/api/getHost',
+                success: function(res) {
+                    vm.nodes = res.data
+                },
+                dataType: "json"
+            });
+        },
+        methods: {
+            add: function(index) {
+                vm.post_data.cmds.splice(index, 0, [''])
+            },
+            deg: function(index) {
+                vm.post_data.cmds.splice(index, 1)
+            },
+            timeFormat(value) {
+                var crtTime = new Date(value);
+                return dateFtt("yyyy-MM-dd hh:mm:ss.S", crtTime); //直接调用公共JS里面的时间类处理的办法  
+            },
+            send: function() {
+                vm.info = "Running···"
+                console.log(JSON.stringify(vm.post_data))
+                $.ajax({
+                    type: 'POST',
+                    url: '/api/execute',
+                    data: {
+                        host: vm.host,
+                        command: JSON.stringify(vm.post_data)
+                    },
+                    success: function(res) {
+                        console.log(res)
+                        vm.output = res.data
+                        vm.info = "Cmd Done!"
+                    },
+                    dataType: "json"
+                });
+            },
+            changeIp: function() {
+                var nodes = $('input:checkbox:checked')
+                vm.select_nodes = []
+                $.each($('input:checkbox:checked'), function() {
+                    vm.select_nodes.push($(this).val())
+                });
+                vm.host = vm.select_nodes.join(",")
+            }
+        }
+    });
+</script>

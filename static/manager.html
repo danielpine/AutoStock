@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style type="text/css">
+        @import url("//unpkg.com/element-ui@2.13.0/lib/theme-chalk/index.css");
+        body {
+            margin: 0
+        }
+        .el-header {
+            background-color: #B3C0D1;
+            color: #333;
+            line-height: 60px;
+        }
+        .el-aside {
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+<script src="//unpkg.com/vue/dist/vue.js"></script>
+<script src="//unpkg.com/element-ui@2.13.0/lib/index.js"></script>
+<div id="app">
+    <el-container>
+        <el-aside :style="{'background-color': '#1e3799', width: isCollapse ? '65px' : '200px', height: '100vh', position: 'fixed'}">
+            <el-menu
+                    background-color="#1e3799"
+                    text-color="#fff"
+                    active-text-color="#ffd04b"
+                    :collapse-transition=false
+                    class="el-menu-vertical-demo"
+                    :collapse="isCollapse"
+                    style="border-right: none">
+                <el-menu-item index="1">
+                    <i class="el-icon-finished"></i>
+                    <span slot="title">Execute</span>
+                </el-menu-item>
+                <el-menu-item index="2">
+                    <i class="el-icon-monitor"></i>
+                    <span slot="title">Host & Group</span>
+                </el-menu-item>
+                <el-menu-item index="3">
+                    <i class="el-icon-s-operation"></i>
+                    <span slot="title">Scripts</span>
+                </el-menu-item>
+                <el-menu-item index="4">
+                    <i class="el-icon-odometer"></i>
+                    <span slot="title">Dashboard</span>
+                </el-menu-item>
+            </el-menu>
+
+            <el-button style="margin-left: 24px; font-size: 18px; position: fixed; bottom: 0;" type="text" @click="toggle()">
+                <i :class="{ 'el-icon-arrow-right': isCollapse, 'el-icon-arrow-left': !isCollapse }"></i>
+            </el-button>
+        </el-aside>
+        <el-main :style="{'margin-left': isCollapse ? '65px' : '200px'}">
+            <el-table :data="tableData">
+                <el-table-column prop="date" label="日期" width="140">
+                </el-table-column>
+                <el-table-column prop="name" label="姓名" width="120">
+                </el-table-column>
+                <el-table-column prop="address" label="地址">
+                </el-table-column>
+            </el-table>
+        </el-main>
+    </el-container>
+</div>
+<script>
+    var Main = {
+        data() {
+            const item = {
+                date: '2016-05-02',
+                name: '王小虎',
+                address: '上海市普陀区金沙江路 1518 弄'
+            };
+            return {
+                isCollapse: false,
+                tableData: Array(20).fill(item)
+            }
+        },
+        methods: {
+            toggle () {
+                this.isCollapse = !this.isCollapse
+            }
+        }
+    };
+    var Ctor = Vue.extend(Main)
+    new Ctor().$mount('#app')
+</script>
+</body>
+</html>

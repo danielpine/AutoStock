@@ -1,0 +1,24 @@
+[编译安装Python3.7.0]
+yum install openssl-devel bzip2-devel expat-devel gdbm-devel readline-devel sqlite-devel  libffi-devel
+tar -xvf Python-3.7.0.tar.xz
+./configure --enable-shared
+make -j8
+make install
+
+[编译安装nginx]
+yum install gcc-c++
+yum install -y pcre pcre-devel
+yum install -y zlib zlib-devel
+yum install -y openssl openssl-devel
+wget -c https://nginx.org/download/nginx-1.12.0.tar.gz
+tar -zxvf nginx-1.12.0.tar.gz
+cd nginx-1.12.0
+./configure
+make
+make install
+
+cd /usr/local/nginx/sbin/
+./nginx 
+./nginx -s stop
+./nginx -s quit
+./nginx -s reload

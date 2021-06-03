@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Monitor</title>
+    <style type="text/css">
+      @import url('lib/element-ui/theme-chalk/index.css');
+
+      body {
+        margin: 0;
+        padding: 0;
+      }
+
+      h1 {
+        color: #ffffff;
+        height: 64px;
+        min-width: 300px;
+        margin: 0;
+        padding: 0;
+      }
+
+      .el-table th > .cell {
+        padding: 0 14px;
+      }
+
+      .el-table td,
+      .el-table th {
+        padding: 3px 0;
+      }
+
+      .el_col {
+        padding: 0 10px;
+        height: 100%;
+      }
+
+      .el_col_left {
+        border-right: 1px gainsboro dashed;
+        height: calc(100vh - 65px);
+        overflow: scroll;
+      }
+
+      .el_col_right {
+        height: calc(100vh - 65px);
+        overflow: scroll;
+        padding-bottom: 10px;
+      }
+
+      .el-card__body {
+        padding: 0 20px;
+      }
+
+      [v-cloak] {
+        display: none;
+      }
+
+      .el-table--enable-row-transition .el-table__body td {
+        padding: 0;
+      }
+
+      .el-card__body {
+        padding: 0;
+      }
+
+      .box-card {
+        width: 100%;
+      }
+
+      .el-card {
+        border: 1px solid lightgray;
+        margin-top: 20px;
+      }
+
+      .el-header {
+        line-height: 60px;
+      }
+
+      .el-header,
+      .el-footer,
+      .el-main {
+        background-color: #333;
+      }
+
+      .el-tooltip__popper {
+        max-width: 30%;
+      }
+
+      .el-tooltip__popper,
+      .el-tooltip__popper.is-dark {
+        background: #0c0c0c !important;
+        color: #e2e5eb !important;
+      }
+
+      .el-tabs__item:focus.is-active.is-focus:not(:active) {
+        -webkit-box-shadow: none;
+        box-shadow: none;
+        border-radius: 0;
+      }
+
+      .rect {
+        width: 12px;
+        height: 3px;
+        margin-right: 1px;
+        text-align: center;
+        display: block;
+        background-repeat: no-repeat;
+        background-position: 0 0;
+      }
+    </style>
+  </head>
+
+  <body>
+    <script type="text/javascript" src="lib/vue/vue.js"></script>
+    <script type="text/javascript" src="js/http-vue-loader.js"></script>
+    <script type="text/javascript" src="lib/element-ui/index.js"></script>
+    <script type="text/javascript" src="js/jquery-2.1.1.min.js"></script>
+    <script type="text/javascript" src="js/ace.js"></script>
+    <script type="text/javascript" src="js/ext-language_tools.js"></script>
+    <script type="text/javascript" src="js/ace.hint.js"></script>
+    <script type="text/javascript" src="js/echarts.min.js"></script>
+    <script type="text/javascript" src="js/echarts-gl.min.js"></script>
+    <script type="text/javascript" src="js/ecStat.min.js"></script>
+    <script type="text/javascript" src="js/dataTool.min.js"></script>
+    <script type="text/javascript" src="js/china.js"></script>
+    <script type="text/javascript" src="js/world.js"></script>
+    <script type="text/javascript" src="theme/echarts_dark_theme.js"></script>
+    <script type="text/javascript" src="js/charts-service.js"></script>
+    <script type="text/javascript" src="js/websocket-service.js"></script>
+    <div id="app" v-cloak>
+      <p>
+        <el-select
+          style="width: 330px"
+          v-model="value"
+          multiple
+          placeholder="请选择"
+        >
+          <el-option
+            v-for="item,index in ids"
+            :key="index"
+            :label="item"
+            :value="item"
+          >
+          </el-option>
+        </el-select>
+      </p>
+      <div style="height: 600px">
+        <meta charset="UTF-8" />
+        <el-table
+          stripe
+          border
+          v-loading="proc_loading"
+          element-loading-text="拼命加载中"
+          element-loading-spinner="el-icon-loading"
+          element-loading-background="rgba(0, 0, 0, 0.8)"
+          :data="
+          prices.filter(
+                (data) =>
+                  !search ||
+                  JSON.stringify(data).toLowerCase().includes(search.toLowerCase())
+              )
+            "
+          style="width: 100%"
+          max-height="600"
+          :default-sort="{ prop: 'MemUsed', order: 'descending' }"
+          size="mini"
+          tooltip-effect="dark"
+        >
+          <el-table-column type="index" label="#"> </el-table-column>
+          <el-table-column
+            v-for="v,i in title"
+            :key="i"
+            :prop="v"
+            :label="v"
+            width="150"
+            v-if="v!=='时间'"
+            sortable
+          >
+          </el-table-column>
+          <el-table-column fixed="right" prop="时间" label="时间" width="220">
+            <template slot="header" slot-scope="scope">
+              <el-input
+                v-model="search"
+                size="mini"
+                placeholder="输入关键字搜索"
+                clearable
+              />
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
+    </div>
+    <script src="js/plotly-latest.min.js"></script>
+    <script src="js/color-hash.js"></script>
+    <script src="js/colors-gen.js"></script>
+    <script>
+      var webSocket
+      var process_name_map = {} // key:pid value:pname
+      Vue.component('account', {
+        template: '<h1>Orange Resource Monitor</h1>' // template 是 Vue 中的关键字，不能改。
+      })
+
+      // Vue.js
+      var vm = new Vue({
+        el: '#app',
+        data: {
+          hostNodes: [],
+          prices: [],
+          value: [
+            'sh000001',
+            'sz399001',
+            'sz399006',
+            'sh600016',
+            'sh601939',
+            'sh601098',
+            'sz300749',
+            'sz000068'
+          ],
+          ids: [
+            'sh000001',
+            'sz399001',
+            'sz399006',
+            'sh600016',
+            'sh601939',
+            'sh601098',
+            'sz300749',
+            'sz000068'
+          ],
+          title: [
+            'ID',
+            '股票名字',
+            '今日开盘价',
+            '昨日收盘价',
+            '当前价格',
+            '今日最高价',
+            '今日最低价',
+            '竞买价',
+            '竞卖价',
+            '成交股票数',
+            '成交金额',
+            '买一数',
+            '买一价',
+            '买二数',
+            '买二价',
+            '买三数',
+            '买三价',
+            '买四数',
+            '买四价',
+            '买五数',
+            '买五价',
+            '卖一数',
+            '卖一价',
+            '卖二数',
+            '卖二价',
+            '卖三数',
+            '卖三价',
+            '卖四数',
+            '卖四价',
+            '卖五数',
+            '卖五价',
+            '日期',
+            '时间'
+          ],
+          proc_loading: true,
+          search: '',
+          activeName: 'first',
+          process_list: [],
+          proc_loading: false,
+          new_mon_process: {
+            id: '',
+            state: '',
+            key: '',
+            type: '',
+            timestamp: ''
+          },
+          monprocess_list: [],
+          monproc_loading: false,
+          addMonProcessDialogFormVisible: false,
+          monproc_search: '',
+          popover_visible: true,
+          options: [],
+          loading: false,
+          drawer: false,
+          selectHostNodes: [],
+          hostsOutput: [],
+          groupNodes: [],
+          selectGroupNodes: [],
+          groupsOutput: [],
+          executing: false,
+          querying: false,
+          allowedRun: false,
+          theme: 'white',
+          useWebSocket: true,
+          tableData: [],
+          multipleSelection: [],
+          processfilter: [],
+          lastTimeOption: 'Last 5 minutes',
+          lastTimeOptions: {
+            'Last 5 minutes': 5,
+            'Last 30 minutes': 30,
+            'Last 1 hour': 60,
+            'Last 5 hour': 5 * 60,
+            'Last 1 day': 24 * 60,
+            'Last 7 day': 7 * 24 * 60
+          }
+        },
+        mounted() {
+          window.parent.vm.loading = false
+        },
+        created() {
+          this.query_price()
+        },
+        methods: {
+          connect_web_socket: function () {
+            if ('WebSocket' in window) {
+              this.useWebSocket = true
+              webSocket = new WebSocket(
+                'ws://' + window.location.host + '/orange'
+              )
+              initWebSocket()
+              console.log('Support webSocket')
+            } else {
+              this.useWebSocket = false
+              console.log('Not support webSocket')
+            }
+          },
+          query_price: function () {
+            var that = this
+            Plotly.d3.csv(
+              `/query_price/${this.ids.join(',')}`,
+              function (err, rows) {
+                that.prices = rows
+                that.proc_loading = false
+              }
+            )
+          },
+          queryProcessSearchAsync(queryString) {
+            var vmm = this
+            vmm.loading = true
+            var now = parseInt(new Date().getTime() / 1000)
+            Plotly.d3.csv(
+              '/query_process_by_key_words?key_words=' +
+                queryString +
+                '&start=' +
+                (now - vmm.lastTimeOptions[vmm.lastTimeOption] * 60) +
+                '&end=' +
+                now,
+              function (err, rows) {
+                vmm.options = rows
+                vmm.loading = false
+              }
+            )
+          },
+          tab_click: function (tab, event) {
+            var vmm = this
+            if (tab.label == '实时进程') {
+              vmm.proc_loading = true
+              Plotly.d3.csv('/query_process', function (err, rows) {
+                vmm.process_list = rows
+                vmm.proc_loading = false
+              })
+            } else if (tab.label == '进程监控') {
+              vmm.query_monprocess()
+            }
+          },
+          query_monprocess: function () {
+            var vmm = this
+            vmm.monproc_loading = true
+            Plotly.d3.json('/query_monprocess', function (err, rows) {
+              vmm.monprocess_list = rows
+              vmm.monproc_loading = false
+            })
+          },
+          edit_conf: function () {
+            this.drawer = true
+          },
+          toggleSelection(rows) {
+            if (rows) {
+              rows.forEach((row) => {
+                this.$refs.multipleTable.toggleRowSelection(row)
+              })
+            } else {
+              this.$refs.multipleTable.clearSelection()
+            }
+          },
+          handleSelectionChange(val) {
+            this.multipleSelection = val
+            if (option && typeof option === 'object') {
+              var series = []
+              for (s in seriesfull) {
+                if (exist(seriesfull[s], val)) {
+                  series.push(seriesfull[s])
+                }
+              }
+              option.series = series
+              memChart.setOption(option, true)
+              cpuChart.setOption(option, true)
+            }
+          },
+          handleHostSelectionChange(val) {
+            vm.selectHostNodes = val
+            console.log(vm.selectHostNodes)
+            checkAllowedRun()
+          },
+          handleGroupSelectionChange(val) {
+            vm.selectGroupNodes = val
+            console.log(vm.selectGroupNodes)
+            checkAllowedRun()
+          },
+          checkSelectable(row, index) {
+            return row.status == 1
+          },
+          insert_monprocess() {
+            var vmm = this
+            $.ajax({
+              type: 'GET',
+              url: '/insert_monprocess',
+              data: this.new_mon_process,
+              async: true,
+              cache: false,
+              error: function (request) {
+                vmm.notification(
+                  vm.$t('msg.data_loading_error'),
+                  vm.$t('msg.net_error'),
+                  'bottom-right',
+                  'error'
+                )
+              },
+              success: function (res) {
+                vmm.addMonProcessDialogFormVisible = false
+                vmm.query_monprocess()
+                vmm.notification(
+                  vm.$t('msg.data_loading_error'),
+                  vm.$t('msg.net_error'),
+                  'bottom-right',
+                  'error'
+                )
+              },
+              dataType: 'json'
+            })
+          },
+          query_range(callback) {
+            console.log(typeof callback)
+            var start = new Date().getTime()
+            var now = parseInt(start / 1000)
+            var vmm = this
+            this.querying = true
+            Plotly.d3.csv(
+              '/query_range' +
+                '?start=' +
+                (now - vmm.lastTimeOptions[vmm.lastTimeOption] * 60) +
+                '&end=' +
+                now +
+                '&processfilter=' +
+                vmm.processfilter,
+              function (err, rows) {
+                handle_process_data(rows, callback)
+                vmm.querying = false
+                var info =
+                  'Loaded ' +
+                  rows.length +
+                  ' rows in ' +
+                  (new Date().getTime() - start) +
+                  'ms.'
+                vmm.$notify({
+                  title: 'Success',
+                  message: info,
+                  position: 'bottom-right'
+                })
+                localStorage.setItem('processfilter', vmm.processfilter)
+              }
+            )
+          },
+          send: function () {
+            let data = {
+              reqType: 10003,
+              target: {
+                hosts: vm.selectHostNodes,
+                groups: vm.selectGroupNodes
+              },
+              commands: {
+                code: 1000,
+                cmds: [editor.getValue()]
+              }
+            }
+            webSocket.send(JSON.stringify(data))
+          },
+          resetCmds() {
+            editor.setValue('')
+          },
+          changeTheme(theme) {
+            this.theme = theme
+            editor.setTheme(
+              theme == 'white' ? 'ace/theme/xcode' : 'ace/theme/monokai'
+            )
+          }
+        },
+        components: {
+          processList: httpVueLoader('./pages/templates/process_list.vue'),
+          paneTittle: httpVueLoader('./pages/templates/pane_tittle.vue')
+        }
+      })
+      document.onkeydown = function (e) {
+        var keyCode = e.keyCode || e.which || e.charCode
+        var ctrlKey = e.ctrlKey
+        if (ctrlKey && keyCode == 82) {
+          vm.query_range()
+          e.preventDefault()
+          return false
+        }
+      }
+    </script>
+  </body>
+</html>
