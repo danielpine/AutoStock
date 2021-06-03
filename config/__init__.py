@@ -1,4 +1,4 @@
-from app import util
+import util
 import logging
 import re
 
