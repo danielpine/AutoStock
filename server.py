@@ -14,17 +14,19 @@
 # under the License.
 
 
+from config import APP_SETTINGS
 from api.price_provider import get_info_from_sina
-from flask import (Flask, Response, escape, jsonify, redirect, request,
-                   session, url_for)
+from flask import (Flask, Response, escape, jsonify,
+                   redirect, request, session, url_for)
 from geventwebsocket.handler import WebSocketHandler
 from geventwebsocket.server import WSGIServer
-
 from util.logger import log
+from database import db
 
 app = Flask(__name__, static_url_path='')
 app.config['DEBUG'] = True
 user_socket_list = []
+db.create_all()
 
 
 @app.route('/orange')
@@ -55,22 +57,22 @@ def orange():
 def index():
     return app.send_static_file('index.html')
 
+
 @app.route('/query_price/<ids>')
 def query_price(ids):
     return get_info_from_sina(ids)
 
-from config import APP_SETTINGS
 
 ENV = APP_SETTINGS.prop('application.env')
- 
+
 if __name__ == "__main__":
-    if ENV == 'DEV' :
+    if ENV == 'DEV':
         log.info(u'Started Starting as DEV')
         app.run(threaded=True)
-    else:    
+    else:
         log.info(u'Started Starting as PRO')
-        srv = WSGIServer(('0.0.0.0', 5000),
-                        app,
-                        handler_class=WebSocketHandler,
-                        log=log)
-        srv.serve_forever()
+        server = WSGIServer(('0.0.0.0', 5000),
+                            app,
+                            handler_class=WebSocketHandler,
+                            log=log)
+        server.serve_forever()
