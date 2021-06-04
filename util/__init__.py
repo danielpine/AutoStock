@@ -13,31 +13,5 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import json
-import yaml
-
-
-def get_mem_size(process):
-    mem_info = process.memory_info()
-    return mem_info.rss / 1024
-
-
-def convert_json_from_lists(keys, data):
-    container = []
-    if data:
-        for e in data:
-            j = {}
-            for k, v in enumerate(e):
-                j[keys[k]] = v
-            container.append(j)
-    return container
-
-
-def load_json(url):
-    with open(url) as f:
-        return json.load(f)
-
-
-def load_yaml(url):
-    with open(url) as f:
-        return yaml.safe_load(f)
+from .utils import (get_mem_size, convert_json_from_lists,
+                    load_json, load_yaml)

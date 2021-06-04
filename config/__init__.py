@@ -43,3 +43,8 @@ LOGGING_LEVEL = {
     'DEBUG': logging.DEBUG,
     'NOTSET': logging.NOTSET
 }
+
+global status
+status = {
+    'val': 0
+}
