@@ -54,7 +54,6 @@ var WebSocketApi = (function () {
     },
   }
 
-  // 构造保险合同对象的构造器
   var WebSocketBuilder = function (url) {
     this.url = url
   }

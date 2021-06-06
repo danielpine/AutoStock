@@ -5,8 +5,8 @@ def error(msg):
     return message(False, 400, None, msg)
 
 
-def success():
-    return message(True, 200, None, None)
+def success(data=None):
+    return message(True, 200, data, None)
 
 
 def message(success, code, data, message):

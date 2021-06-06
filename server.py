@@ -115,7 +115,7 @@ def add():
     mon = StockMonitor.of(body)
     db.session.add(mon)
     db.session.commit()
-    return json.dumps(mon, cls=AutoJSONEncoder, indent=2)
+    return result.success(data=json.dumps(mon, cls=AutoJSONEncoder, indent=2))
 
 
 def bootstrap(onServerClose=None, beforeServerStartup=None):
@@ -147,6 +147,7 @@ def start_scheduler_thread():
 
 @app.errorhandler(sqlalchemy.exc.IntegrityError)
 def handle_invalid_usage(error):
+    print(error)
     return result.error(error.code)
 
 
