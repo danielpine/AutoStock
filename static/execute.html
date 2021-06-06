@@ -1,448 +1,516 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <title>Execute</title>
     <style type="text/css">
-        @import url("lib/element-ui/theme-chalk/index.css");
+      @import url('lib/element-ui/theme-chalk/index.css');
 
-        body {
-            margin: 0;
-            color: rgb(44, 44, 44);
-        }
+      body {
+        margin: 0;
+        color: rgb(44, 44, 44);
+      }
 
-        .el-table th > .cell {
-            padding: 0 14px;
-        }
+      .el-table th > .cell {
+        padding: 0 14px;
+      }
 
-        .el-table td,
-        .el-table th {
-            padding: 3px 0;
-        }
+      .el-table td,
+      .el-table th {
+        padding: 3px 0;
+      }
 
-        .host_status {
-            margin: auto;
-            width: 10px;
-            height: 10px;
-            border-radius: 5px;
-        }
+      .host_status {
+        margin: auto;
+        width: 10px;
+        height: 10px;
+        border-radius: 5px;
+      }
 
-        .host_status_1 {
-            background-color: lawngreen;
-        }
+      .host_status_1 {
+        background-color: lawngreen;
+      }
 
-        .host_status_0 {
-            background-color: firebrick;
-        }
+      .host_status_0 {
+        background-color: firebrick;
+      }
 
-        #title {
-            padding: 0 10px;
-            height: 64px;
-            line-height: 64px;
-            border-bottom: 1px solid gainsboro;
-        }
+      #title {
+        padding: 0 10px;
+        height: 64px;
+        line-height: 64px;
+        border-bottom: 1px solid gainsboro;
+      }
 
-        .el_col {
-            padding: 0 10px;
-            height: 100%;
-        }
+      .el_col {
+        padding: 0 10px;
+        height: 100%;
+      }
 
-        .el_col_left {
-            border-right: 1px gainsboro dashed;
-            height: calc(100vh - 65px);
-            overflow: scroll;
-        }
+      .el_col_left {
+        border-right: 1px gainsboro dashed;
+        height: calc(100vh - 65px);
+        overflow: scroll;
+      }
 
-        .el_col_right {
-            height: calc(100vh - 65px);
-            overflow: scroll;
-            padding-bottom: 10px;
-        }
+      .el_col_right {
+        height: calc(100vh - 65px);
+        overflow: scroll;
+        padding-bottom: 10px;
+      }
 
-        .el-card__body {
-            padding: 0 20px;
-        }
+      .el-card__body {
+        padding: 0 20px;
+      }
 
-        pre {
-            margin: 0;
-            padding: 2px 20px;
-        }
+      pre {
+        margin: 0;
+        padding: 2px 20px;
+      }
 
-        .output_title {
-            font-size: 13px;
-            color: forestgreen;
-        }
+      .output_title {
+        font-size: 13px;
+        color: forestgreen;
+      }
 
-        .output_title_inner {
-            font-size: 11px;
-            color: forestgreen;
-        }
+      .output_title_inner {
+        font-size: 11px;
+        color: forestgreen;
+      }
 
-        .host_group_title {
-            margin-top: 15px;
-            border-top: 1px gainsboro dashed;
-            padding-top: 10px;
-        }
+      .host_group_title {
+        margin-top: 15px;
+        border-top: 1px gainsboro dashed;
+        padding-top: 10px;
+      }
 
-        .btn_fixed {
-            position: absolute;
-            z-index: 99;
-            font-size: 20px;
-            top: -2px;
-        }
+      .btn_fixed {
+        position: absolute;
+        z-index: 99;
+        font-size: 20px;
+        top: -2px;
+      }
 
-        .btn_fixed_run:hover,
-        .btn_fixed_run:focus {
-            color: forestgreen;
-        }
+      .btn_fixed_run:hover,
+      .btn_fixed_run:focus {
+        color: forestgreen;
+      }
 
-        .btn_fixed_refresh:hover,
-        .btn_fixed_refresh:focus {
-            color: #66b1ff;
-        }
+      .btn_fixed_refresh:hover,
+      .btn_fixed_refresh:focus {
+        color: #66b1ff;
+      }
 
-        .btn_fixed_run {
-            right: 40px;
-            color: forestgreen;
-        }
+      .btn_fixed_run {
+        right: 40px;
+        color: forestgreen;
+      }
 
-        .btn_fixed_refresh {
-            right: 10px;
-            color: #66b1ff;
-        }
+      .btn_fixed_refresh {
+        right: 10px;
+        color: #66b1ff;
+      }
 
-        [v-cloak] {
-            display: none;
-        }
+      [v-cloak] {
+        display: none;
+      }
 
-        .el-table--enable-row-transition .el-table__body td {
-            padding: 0;
-        }
+      .el-table--enable-row-transition .el-table__body td {
+        padding: 0;
+      }
 
-        .smallTable .el-table td, .el-table th {
-            padding: 0;
-        }
+      .smallTable .el-table td,
+      .el-table th {
+        padding: 0;
+      }
 
-        .el-card__body {
-            padding: 0;
-        }
+      .el-card__body {
+        padding: 0;
+      }
 
-        .clr_chs_btn {
-            font-size: 18px;
-            position: fixed;
-            top: 0;
-            padding: 22px 0;
-        }
+      .clr_chs_btn {
+        font-size: 18px;
+        position: fixed;
+        top: 0;
+        padding: 22px 0;
+      }
 
-        .clr_chs_btn_left {
-            right: 64px;
-        }
+      .clr_chs_btn_left {
+        right: 64px;
+      }
 
-        .clr_chs_btn_right {
-            right: 32px;
-        }
+      .clr_chs_btn_right {
+        right: 32px;
+      }
 
-        .clr_chs_btn_div {
-            height: 16px;
-            width: 32px;
-        }
+      .clr_chs_btn_div {
+        height: 16px;
+        width: 32px;
+      }
 
-        .clr_chs_btn_div_left {
-            background-color: rgb(31, 31, 31);
-        }
+      .clr_chs_btn_div_left {
+        background-color: rgb(31, 31, 31);
+      }
 
-        .clr_chs_btn_div_right {
-            background-color: rgb(235, 238, 244);
-        }
+      .clr_chs_btn_div_right {
+        background-color: rgb(235, 238, 244);
+      }
 
-        #editor {
-            position: relative;
-            border-radius: 4px;
-        }
+      #editor {
+        position: relative;
+        border-radius: 4px;
+      }
 
-        .sticky_title {
-            position: sticky;
-            top: 0;
-            padding: 0 20px;
-        }
+      .sticky_title {
+        position: sticky;
+        top: 0;
+        padding: 0 20px;
+      }
 
-        .title_btm_dashed {
-            border-bottom: 1px dashed rgb(235, 238, 244);
-        }
+      .title_btm_dashed {
+        border-bottom: 1px dashed rgb(235, 238, 244);
+      }
 
-        .px250_scroll {
-            max-height: 250px;
-            overflow: scroll;
-        }
+      .px250_scroll {
+        max-height: 250px;
+        overflow: scroll;
+      }
 
-        .grp_inner_bdr_top {
-            border: none;
-            border-top: 1px solid rgb(235, 238, 244);
-            border-radius: 0;
-        }
+      .grp_inner_bdr_top {
+        border: none;
+        border-top: 1px solid rgb(235, 238, 244);
+        border-radius: 0;
+      }
 
-        .margin_top_10px {
-            margin-top: 10px;
-        }
+      .margin_top_10px {
+        margin-top: 10px;
+      }
     </style>
-</head>
+  </head>
 
-<body>
-<script src="lib/vue/vue.js"></script>
-<script src="lib/element-ui/index.js"></script>
-<script src="js/jquery-2.1.1.min.js"></script>
-<script src="js/ace.js"></script>
-<script src="js/ext-language_tools.js"></script>
-<script src="js/ace.hint.js"></script>
-<div id="app" v-cloak>
-    <el-container>
-        <el-main style="padding: 0;">
-            <div id="title">
-                <span>Execute</span>
-                <el-button class="clr_chs_btn clr_chs_btn_left" type="text" @click="changeTheme('black')">
-                    <div class="clr_chs_btn_div clr_chs_btn_div_left"
-                         :style="{border: theme=='white' ? '2px solid rgb(235, 238, 244)' : '2px solid rgb(31, 31, 31)'}"></div>
+  <body>
+    <script src="lib/vue/vue.js"></script>
+    <script src="lib/element-ui/index.js"></script>
+    <script src="js/jquery-2.1.1.min.js"></script>
+    <script src="js/ace.js"></script>
+    <script src="js/ext-language_tools.js"></script>
+    <script src="js/ace.hint.js"></script>
+    <div id="app" v-cloak>
+      <el-container>
+        <el-main style="padding: 0">
+          <div id="title">
+            <span>Execute</span>
+            <el-button
+              class="clr_chs_btn clr_chs_btn_left"
+              type="text"
+              @click="changeTheme('black')"
+            >
+              <div
+                class="clr_chs_btn_div clr_chs_btn_div_left"
+                :style="{border: theme=='white' ? '2px solid rgb(235, 238, 244)' : '2px solid rgb(31, 31, 31)'}"
+              ></div>
+            </el-button>
+            <el-button
+              class="clr_chs_btn clr_chs_btn_right"
+              type="text"
+              @click="changeTheme('white')"
+            >
+              <div
+                class="clr_chs_btn_div clr_chs_btn_div_right"
+                :style="{border: theme=='black' ? '2px solid rgb(31, 31, 31)' : '2px solid rgb(235, 238, 244)'}"
+              ></div>
+            </el-button>
+          </div>
+          <el-row>
+            <el-col :span="10" class="el_col el_col_left">
+              <el-row style="position: relative; margin-top: 11px">
+                <el-button
+                  :disabled="!allowedRun"
+                  class="btn_fixed btn_fixed_run"
+                  @click="send"
+                  type="text"
+                >
+                  <span v-if="executing"><i class="el-icon-loading"></i></span>
+                  <span v-else>▶</span>
                 </el-button>
-                <el-button class="clr_chs_btn clr_chs_btn_right" type="text" @click="changeTheme('white')">
-                    <div class="clr_chs_btn_div clr_chs_btn_div_right"
-                         :style="{border: theme=='black' ? '2px solid rgb(31, 31, 31)' : '2px solid rgb(235, 238, 244)'}"></div>
+                <el-button
+                  class="btn_fixed btn_fixed_refresh"
+                  @click="resetCmds()"
+                  type="text"
+                >
+                  <i class="el-icon-close"></i>
                 </el-button>
-            </div>
-            <el-row>
-                <el-col :span="10" class="el_col el_col_left">
-                    <el-row style="position: relative; margin-top: 11px;">
-                        <el-button :disabled="!allowedRun" class="btn_fixed btn_fixed_run" @click="send" type="text">
-                            <span v-if="executing"><i class="el-icon-loading"></i></span>
-                            <span v-else>▶</span>
-                        </el-button>
-                        <el-button class="btn_fixed btn_fixed_refresh" @click="resetCmds()" type="text">
-                            <i class="el-icon-close"></i>
-                        </el-button>
-                        <div id="editor"></div>
-                    </el-row>
-                    <div class="host_group_title">Host(s)</div>
-                    <el-table :height="hostNodes.length > 13 ? 360 : (hostNodes.length+1)*24" :data="hostNodes" @selection-change="handleHostSelectionChange">
-                        <el-table-column type="selection" :selectable="checkSelectable" width="40"></el-table-column>
-                        <el-table-column width="40">
-                            <template slot-scope="scope">
-                                <div class="host_status host_status_1" v-if="scope.row.status == 1"></div>
-                                <div class="host_status host_status_0" v-if="scope.row.status == 0"></div>
-                            </template>
-                        </el-table-column>
-                        <el-table-column prop="ip" label="IP"></el-table-column>
-                        <el-table-column prop="name" label="Name"></el-table-column>
-                        <el-table-column prop="hostname" label="Hostname"></el-table-column>
+                <div id="editor"></div>
+              </el-row>
+              <div class="host_group_title">Host(s)</div>
+              <el-table
+                :height="hostNodes.length > 13 ? 360 : (hostNodes.length+1)*24"
+                :data="hostNodes"
+                @selection-change="handleHostSelectionChange"
+              >
+                <el-table-column
+                  type="selection"
+                  :selectable="checkSelectable"
+                  width="40"
+                ></el-table-column>
+                <el-table-column width="40">
+                  <template slot-scope="scope">
+                    <div
+                      class="host_status host_status_1"
+                      v-if="scope.row.status == 1"
+                    ></div>
+                    <div
+                      class="host_status host_status_0"
+                      v-if="scope.row.status == 0"
+                    ></div>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="ip" label="IP"></el-table-column>
+                <el-table-column prop="name" label="Name"></el-table-column>
+                <el-table-column
+                  prop="hostname"
+                  label="Hostname"
+                ></el-table-column>
+              </el-table>
+              <div class="host_group_title">Group(s)</div>
+              <el-table
+                :data="groupNodes"
+                @selection-change="handleGroupSelectionChange"
+              >
+                <el-table-column
+                  type="selection"
+                  :selectable="checkSelectable"
+                  width="40"
+                ></el-table-column>
+                <el-table-column width="40">
+                  <template slot-scope="scope">
+                    <div
+                      class="host_status host_status_1"
+                      v-if="scope.row.status == 1"
+                    ></div>
+                    <div
+                      class="host_status host_status_0"
+                      v-if="scope.row.status == 0"
+                    ></div>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="name" label="Name"></el-table-column>
+                <el-table-column type="expand" style="padding: 0">
+                  <template slot-scope="hosts">
+                    <el-table class="smallTable" :data="hosts.row.hosts">
+                      <el-table-column width="40"></el-table-column>
+                      <el-table-column width="40"></el-table-column>
+                      <el-table-column width="40">
+                        <template slot-scope="scope">
+                          <div
+                            class="host_status host_status_1"
+                            v-if="scope.row.status == 1"
+                          ></div>
+                          <div
+                            class="host_status host_status_0"
+                            v-if="scope.row.status == 0"
+                          ></div>
+                        </template>
+                      </el-table-column>
+                      <el-table-column prop="ip" label="IP"></el-table-column>
+                      <el-table-column
+                        prop="name"
+                        label="Name"
+                      ></el-table-column>
+                      <el-table-column
+                        prop="hostname"
+                        label="Hostname"
+                      ></el-table-column>
                     </el-table>
-                    <div class="host_group_title">Group(s)</div>
-                    <el-table :data="groupNodes" @selection-change="handleGroupSelectionChange">
-                        <el-table-column type="selection" :selectable="checkSelectable" width="40"></el-table-column>
-                        <el-table-column width="40">
-                            <template slot-scope="scope">
-                                <div class="host_status host_status_1" v-if="scope.row.status == 1"></div>
-                                <div class="host_status host_status_0" v-if="scope.row.status == 0"></div>
-                            </template>
-                        </el-table-column>
-                        <el-table-column prop="name" label="Name"></el-table-column>
-                        <el-table-column type="expand" style="padding: 0;">
-                            <template slot-scope="hosts">
-                                <el-table class="smallTable" :data="hosts.row.hosts">
-                                    <el-table-column width="40"></el-table-column>
-                                    <el-table-column width="40"></el-table-column>
-                                    <el-table-column width="40">
-                                        <template slot-scope="scope">
-                                            <div class="host_status host_status_1" v-if="scope.row.status == 1"></div>
-                                            <div class="host_status host_status_0" v-if="scope.row.status == 0"></div>
-                                        </template>
-                                    </el-table-column>
-                                    <el-table-column prop="ip" label="IP"></el-table-column>
-                                    <el-table-column prop="name" label="Name"></el-table-column>
-                                    <el-table-column prop="hostname" label="Hostname"></el-table-column>
-                                </el-table>
-                            </template>
-                        </el-table-column>
-                    </el-table>
-                </el-col>
-                <el-col :span="14" class="el_col el_col_right">
-                    <el-card :style="{'background-color': theme=='white'? 'white' : 'rgb(39, 39, 34)'}"
-                             shadow="hover" class="px250_scroll margin_top_10px"
-                             v-for="host,index1 in hostsOutput" :key=index1 class="box-card">
-                        <div :style="{'background-color': theme=='white'? 'white' : 'rgb(39, 39, 34)'}"
-                             class="sticky_title title_btm_dashed"
-                             style="border-top-left-radius: 4px; border-top-right-radius: 4px;">
-                            <span class="output_title"><b>Host: {{ host.ip }} &nbsp; Finished in {{ host.ms }} ms</b></span>
-                        </div>
-                        <pre :style="{color: theme=='white'? 'black' : 'rgb(232, 232, 226)'}">{{ host.result.trim() }}</pre>
-                    </el-card>
-                    <el-card :style="{'background-color': theme=='white'? 'white' : 'rgb(39, 39, 34)'}" shadow="hover"
-                             class="margin_top_10px" v-for="group,index2 in groupsOutput" :key=index2+100
-                             class="box-card">
-                        <div :style="{'background-color': theme=='white'? 'white' : 'rgb(39, 39, 34)'}"
-                             class="sticky_title">
-                            <span class="output_title"><b>Group: {{ group.name }} &nbsp; Finished in {{ group.ms }} ms</b></span>
-                        </div>
-                        <el-card :style="{'background-color': theme=='white'? 'white' : 'rgb(39, 39, 34)'}"
-                                 shadow="hover" class="px250_scroll grp_inner_bdr_top"
-                                 v-for="host2,index3 in group.hosts" :key=index3+200 class="box-card">
-                            <div :style="{'background-color': theme=='white'? 'white' : 'rgb(39, 39, 34)'}"
-                                 class="sticky_title title_btm_dashed">
-                                <span class="output_title_inner"><b>Host: {{ host2.ip }} &nbsp; Finished in {{ host2.ms }} ms</b></span>
-                            </div>
-                            <pre :style="{color: theme=='white'? 'black' : 'rgb(232, 232, 226)'}">{{ host2.result.trim() }}</pre>
-                        </el-card>
-                    </el-card>
-                </el-col>
-            </el-row>
+                  </template>
+                </el-table-column>
+              </el-table>
+            </el-col>
+            <el-col :span="14" class="el_col el_col_right">
+              <el-card
+                :style="{'background-color': theme=='white'? 'white' : 'rgb(39, 39, 34)'}"
+                shadow="hover"
+                class="px250_scroll margin_top_10px"
+                v-for="host,index1 in hostsOutput"
+                :key="index1"
+                class="box-card"
+              >
+                <div
+                  :style="{'background-color': theme=='white'? 'white' : 'rgb(39, 39, 34)'}"
+                  class="sticky_title title_btm_dashed"
+                  style="
+                    border-top-left-radius: 4px;
+                    border-top-right-radius: 4px;
+                  "
+                >
+                  <span class="output_title"
+                    ><b
+                      >Host: {{ host.ip }} &nbsp; Finished in {{ host.ms }}
+                      ms</b
+                    ></span
+                  >
+                </div>
+                <pre
+                  :style="{color: theme=='white'? 'black' : 'rgb(232, 232, 226)'}"
+                >
+{{ host.result.trim() }}</pre
+                >
+              </el-card>
+              <el-card
+                :style="{'background-color': theme=='white'? 'white' : 'rgb(39, 39, 34)'}"
+                shadow="hover"
+                class="margin_top_10px"
+                v-for="group,index2 in groupsOutput"
+                :key="index2+100"
+                class="box-card"
+              >
+                <div
+                  :style="{'background-color': theme=='white'? 'white' : 'rgb(39, 39, 34)'}"
+                  class="sticky_title"
+                >
+                  <span class="output_title"
+                    ><b
+                      >Group: {{ group.name }} &nbsp; Finished in {{ group.ms }}
+                      ms</b
+                    ></span
+                  >
+                </div>
+                <el-card
+                  :style="{'background-color': theme=='white'? 'white' : 'rgb(39, 39, 34)'}"
+                  shadow="hover"
+                  class="px250_scroll grp_inner_bdr_top"
+                  v-for="host2,index3 in group.hosts"
+                  :key="index3+200"
+                  class="box-card"
+                >
+                  <div
+                    :style="{'background-color': theme=='white'? 'white' : 'rgb(39, 39, 34)'}"
+                    class="sticky_title title_btm_dashed"
+                  >
+                    <span class="output_title_inner"
+                      ><b
+                        >Host: {{ host2.ip }} &nbsp; Finished in {{ host2.ms }}
+                        ms</b
+                      ></span
+                    >
+                  </div>
+                  <pre
+                    :style="{color: theme=='white'? 'black' : 'rgb(232, 232, 226)'}"
+                  >
+{{ host2.result.trim() }}</pre
+                  >
+                </el-card>
+              </el-card>
+            </el-col>
+          </el-row>
         </el-main>
-    </el-container>
-</div>
-<script>
-    var webSocket
-
-    function initWebSocket() {
-        webSocket.onopen = webSocketOpen;
-        webSocket.onmessage = webSocketMessage;
-        webSocket.onclose = webSocketClose;
-        webSocket.onerror = webSocketError;
-    }
-
-    function webSocketOpen() {
-        console.log("WebSocket连接成功")
-        webSocket.send(JSON.stringify({reqType: 10001}))  // 请求hosts
-        webSocket.send(JSON.stringify({reqType: 10002}))  // 请求groups
-    }
-
-    function webSocketMessage(e) {
-        let respMsgJson = JSON.parse(e.data);
-        console.log(respMsgJson)
-        switch (respMsgJson['respType']) {
-            case 10001: // 请求hosts
-                vm.hostNodes = respMsgJson.data
-                break
-            case 10002: // 请求groups
-                vm.groupNodes = respMsgJson.data
-                break
-            case 10003: // 执行命令
-                vm.hostsOutput = respMsgJson.hosts ? respMsgJson.hosts : []
-                vm.groupsOutput = respMsgJson.groups ? respMsgJson.groups : []
-                break
-            default:
-                console.log(e)
-                break
-        }
-    }
-
-    function webSocketClose() {
-        console.log("WebSocket关闭");
-    }
-
-    function webSocketError() {
-        console.log("WebSocket连接失败");
-    }
-
-    // Vue.js
-    var vm = new Vue({
-        el: "#app",
+      </el-container>
+    </div>
+    <script>
+      // Vue.js
+      var vm = new Vue({
+        el: '#app',
         data: {
-            hostNodes: [],
-            selectHostNodes: [],
-            hostsOutput: [],
-            groupNodes: [],
-            selectGroupNodes: [],
-            groupsOutput: [],
-            executing: false,
-            allowedRun: false,
-            theme: 'white',
-            useWebSocket: true
+          hostNodes: [],
+          selectHostNodes: [],
+          hostsOutput: [],
+          groupNodes: [],
+          selectGroupNodes: [],
+          groupsOutput: [],
+          executing: false,
+          allowedRun: false,
+          theme: 'white',
+          useWebSocket: true
         },
         mounted() {
-            loadACE()
-            window.parent.vm.loading = false
+          loadACE()
+          window.parent.vm.loading = false
         },
         created() {
-            if ('WebSocket' in window) {
-                this.useWebSocket = true
-                webSocket = new WebSocket("ws://localhost:8080/orange");
-                initWebSocket();
-                console.log('Support webSocket')
-            } else {
-                this.useWebSocket = false
-                console.log('Not support webSocket')
-            }
+          if ('WebSocket' in window) {
+            this.useWebSocket = true
+            console.log('Support webSocket')
+          } else {
+            this.useWebSocket = false
+            console.log('Not support webSocket')
+          }
         },
         methods: {
-            handleHostSelectionChange(val) {
-                vm.selectHostNodes = val
-                console.log(vm.selectHostNodes)
-                checkAllowedRun()
-            },
-            handleGroupSelectionChange(val) {
-                vm.selectGroupNodes = val
-                console.log(vm.selectGroupNodes)
-                checkAllowedRun()
-            },
-            checkSelectable(row, index) {
-                return row.status == 1
-            },
-            send: function () {
-                let data = {
-                    reqType: 10003,
-                    target: {
-                        hosts: vm.selectHostNodes,
-                        groups: vm.selectGroupNodes
-                    },
-                    commands: {
-                        "code": 1000,
-                        "cmds": [editor.getValue()]
-                    }
-                }
-                webSocket.send(JSON.stringify(data))
-            },
-            resetCmds() {
-                editor.setValue("")
-            },
-            changeTheme(theme) {
-                this.theme = theme
-                editor.setTheme(theme == 'white' ? 'ace/theme/xcode' : 'ace/theme/monokai');
+          handleHostSelectionChange(val) {
+            vm.selectHostNodes = val
+            console.log(vm.selectHostNodes)
+            checkAllowedRun()
+          },
+          handleGroupSelectionChange(val) {
+            vm.selectGroupNodes = val
+            console.log(vm.selectGroupNodes)
+            checkAllowedRun()
+          },
+          checkSelectable(row, index) {
+            return row.status == 1
+          },
+          send: function () {
+            let data = {
+              reqType: 10003,
+              target: {
+                hosts: vm.selectHostNodes,
+                groups: vm.selectGroupNodes
+              },
+              commands: {
+                code: 1000,
+                cmds: [editor.getValue()]
+              }
             }
+            webSocket.send(JSON.stringify(data))
+          },
+          resetCmds() {
+            editor.setValue('')
+          },
+          changeTheme(theme) {
+            this.theme = theme
+            editor.setTheme(
+              theme == 'white' ? 'ace/theme/xcode' : 'ace/theme/monokai'
+            )
+          }
         }
-    });
+      })
 
-    // ACE.js
-    var editor
-    function loadACE() {
+      // ACE.js
+      var editor
+      function loadACE() {
         var setCompleteData = function (data) {
-            var langTools = ace.require("ace/ext/language_tools");
-            langTools.addCompleter({
-                getCompletions: function (editor, session, pos, prefix, callback) {
-                    if (prefix.length === 0) {
-                        return callback(null, []);
-                    } else {
-                        return callback(null, data);
-                    }
-                }
-            });
+          var langTools = ace.require('ace/ext/language_tools')
+          langTools.addCompleter({
+            getCompletions: function (editor, session, pos, prefix, callback) {
+              if (prefix.length === 0) {
+                return callback(null, [])
+              } else {
+                return callback(null, data)
+              }
+            }
+          })
         }
         setCompleteData(myHints)
-        editor = ace.edit("editor");
-        editor.setTheme('ace/theme/xcode');
+        editor = ace.edit('editor')
+        editor.setTheme('ace/theme/xcode')
         editor.setOptions({
-            enableBasicAutocompletion: true,
-            enableSnippets: true,
-            enableLiveAutocompletion: true
-        });
-        editor.resize();
-        editor.setOption("minLines", 10);
-        editor.setOption("maxLines", 20);
-        editor.getSession().on('change', function (e) {
-            checkAllowedRun()
+          enableBasicAutocompletion: true,
+          enableSnippets: true,
+          enableLiveAutocompletion: true
         })
-    }
+        editor.resize()
+        editor.setOption('minLines', 10)
+        editor.setOption('maxLines', 20)
+        editor.getSession().on('change', function (e) {
+          checkAllowedRun()
+        })
+      }
 
-    function checkAllowedRun() {
-        vm.allowedRun = editor.getValue().trim() && (vm.selectHostNodes.length > 0 || vm.selectGroupNodes.length > 0)
-    }
-</script>
-</body>
-
+      function checkAllowedRun() {
+        vm.allowedRun =
+          editor.getValue().trim() &&
+          (vm.selectHostNodes.length > 0 || vm.selectGroupNodes.length > 0)
+      }
+    </script>
+  </body>
 </html>

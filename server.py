@@ -14,28 +14,51 @@
 # under the License.
 
 
-from monitor import trigger
+import datetime
 import json
-from util import result
-from util.utils import AutoJSONEncoder
-from app import app
-from models import StockMonitor
-from config import status
-from database import db
 import threading
-from scheduler import scheduler
-from config import APP_SETTINGS
-from api.price_provider import get_info_from_sina
-from flask import (Flask, Response, escape, jsonify,
-                   redirect, request, session, url_for)
+import time
+
+from flask import (Flask, Response, escape, jsonify, redirect, request,
+                   session, url_for)
+from flask_sockets import Sockets
+from flask_sqlalchemy import sqlalchemy
 from geventwebsocket.handler import WebSocketHandler
 from geventwebsocket.server import WSGIServer
+
+from api.price_provider import get_info_from_sina
+from app import app
+from config import APP_SETTINGS, status
+from database import db
+from models import StockMonitor
+from monitor import trigger
+from scheduler import scheduler, user_socket_list
+from util import result
 from util.logger import log
-from flask_sqlalchemy import sqlalchemy
+from util.utils import AutoJSONEncoder
 
-user_socket_list = []
-
+sockets = Sockets(app)
 db.create_all()
+
+# http://suggest3.sinajs.cn/suggest/type=&key=华控&name=a
+# 通达信
+
+
+@sockets.route('/socket')
+def socket(ws):
+    user_socket_list.append(ws)
+    while not ws.closed:
+        msg = ws.receive()
+        log.info('request %s', request)
+        print(f'i received:{msg}')
+        if msg:
+            now = datetime.datetime.now().isoformat()
+            ws.send(now)
+            print(f'i sent:{now}')
+            time.sleep(1)
+    if ws and ws in user_socket_list:
+        user_socket_list.remove(ws)
+    print(ws, 'closed')
 
 
 @app.route('/orange')
@@ -95,7 +118,9 @@ def add():
     return json.dumps(mon, cls=AutoJSONEncoder, indent=2)
 
 
-def bootstrap():
+def bootstrap(onServerClose=None, beforeServerStartup=None):
+    if beforeServerStartup:
+        beforeServerStartup()
     ENV = APP_SETTINGS.prop('application.env')
     if ENV == 'DEV':
         log.info(u'Started Starting as DEV')
@@ -108,6 +133,8 @@ def bootstrap():
                             handler_class=WebSocketHandler,
                             log=log)
         server.serve_forever()
+    if onServerClose:
+        onServerClose()
 
 
 def start_scheduler_thread():
@@ -129,6 +156,7 @@ def shutdown_scheduler(a):
 
 
 if __name__ == "__main__":
-    # start_scheduler_thread()
-    bootstrap()
-    # scheduler.shutdown()
+    bootstrap(
+        beforeServerStartup=start_scheduler_thread,
+        onServerClose=scheduler.shutdown
+    )

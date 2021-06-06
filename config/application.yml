@@ -1,4 +1,4 @@
 application:
-  env: DEV
+  env: PRO
   log:
     level: INFO # [ERROR,WARNING,WARN,INFO,DEBUG,NOSET]

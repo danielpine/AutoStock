@@ -6,7 +6,7 @@
     <link
       rel="shortcut icon"
       style="color: lightgreen"
-      href="/icon.png"
+      href="image/icon.png"
       type="image/x-icon"
     />
     <style type="text/css">
@@ -41,6 +41,7 @@
   <body>
     <script src="lib/vue/vue.js"></script>
     <script src="lib/element-ui/index.js"></script>
+    <script type="text/javascript" src="js/websocket-builder.js"></script>
     <div id="app" v-cloak style="overflow: hidden">
       <el-container>
         <el-aside
@@ -51,7 +52,7 @@
             :style="logo()"
           ></div>
           <el-menu
-            default-active="0"
+            :default-active="activeIndex"
             @select="selectItem"
             background-color="black"
             text-color="#fff"
@@ -60,7 +61,15 @@
             :collapse="isCollapse"
             style="border-right: none"
           >
-            <el-menu-item index="0">
+            <el-menu-item
+              v-for="menu,index in menus"
+              :key="index"
+              :index="menu.index"
+            >
+              <i :class="menu.icon"></i>
+              <span slot="title">{{menu.label}}</span>
+            </el-menu-item>
+            <!-- <el-menu-item index="0">
               <i class="el-icon-orange"></i>
               <span slot="title">Monitor</span>
             </el-menu-item>
@@ -91,7 +100,7 @@
             <el-menu-item index="6">
               <i class="el-icon-document"></i>
               <span slot="title">Document</span>
-            </el-menu-item>
+            </el-menu-item> -->
           </el-menu>
           <el-button
             style="
@@ -121,29 +130,52 @@
             frameborder="0"
             id="iframe"
             style="width: 100%; height: 100%"
-            :src="activeUrl"
+            :src="activeIndex"
           ></iframe>
         </el-main>
       </el-container>
     </div>
     <script>
+      Vue.prototype.$webSocket = new WebSocketApi.WebSocketBuilder(
+        `ws://${window.location.host}/socket`
+      )
+        .onMessage(function (event) {
+          console.log(this)
+          mes = JSON.parse(event.data)
+          Vue.prototype.$notify({
+            title: mes.message,
+            message: mes.data,
+            type: 'success',
+            duration: 2000
+          })
+        })
+        .build()
       var vm = new Vue({
         el: '#app',
         data: {
           isCollapse: true,
-          activeIndex: 0,
-          activeUrl: 'monitor.html',
+          activeIndex: 'user.html',
           loading: true,
-          paths: {
-            0: 'monitor.html',
-            1.1: 'settings.html',
-            1.2: 'execute.html',
-            2: 'hostgroup.html',
-            3: 'scripts.html',
-            4: 'dashboard.html',
-            5: 'stream.html',
-            6: 'scripts.html'
-          }
+          menus: [
+            {
+              label: 'Monitor',
+              index: 'monitor.html',
+              icon: 'el-icon-orange'
+            },
+            {
+              label: 'User',
+              index: 'user.html',
+              icon: 'el-icon-user'
+            },
+            {
+              label: 'Settings',
+              index: 'settings.html',
+              icon: 'el-icon-setting'
+            }
+          ]
+        },
+        mounted() {
+          this.$webSocket.connectWebSocket()
         },
         methods: {
           logo() {
@@ -153,10 +185,10 @@
               height: '40px'
             }
             if (this.isCollapse) {
-              stlye['background-image'] = 'url(icon.gif)'
+              stlye['background-image'] = 'url(image/icon.gif)'
               stlye['width'] = '40px'
             } else {
-              stlye['background-image'] = 'url(iconname.png)'
+              stlye['background-image'] = 'url(image/iconname.png)'
               stlye['width'] = '66px'
             }
             return stlye
@@ -165,12 +197,12 @@
             this.isCollapse = !this.isCollapse
           },
           selectItem(index) {
+            console.log(arguments)
             this.loading = true
-            if (this.activeUrl == this.paths[index]) {
+            if (this.activeIndex == index) {
               document.getElementById('iframe').contentWindow.location.reload()
             } else {
               this.activeIndex = index
-              this.activeUrl = this.paths[index]
             }
           }
         }

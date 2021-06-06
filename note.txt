@@ -1,0 +1,11 @@
+axios.get('http://php.com', {
+         params: {
+		
+		}
+     })
+         .then(function (res) {
+            //成功的回调
+         })
+         .catch(function (error) {
+          //失败的回调
+         });

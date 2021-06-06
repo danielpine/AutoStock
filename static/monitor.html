@@ -124,7 +124,6 @@
     <script type="text/javascript" src="js/world.js"></script>
     <script type="text/javascript" src="theme/echarts_dark_theme.js"></script>
     <script type="text/javascript" src="js/charts-service.js"></script>
-    <script type="text/javascript" src="js/websocket-service.js"></script>
     <div id="app" v-cloak>
       <p>
         <el-select
@@ -165,7 +164,7 @@
           tooltip-effect="dark"
         >
           <el-table-column type="index" label="#"> </el-table-column>
-          <el-table-column label="股票名字">
+          <el-table-column label="股票名字" width="150">
             <template slot-scope="scope">
               <el-popover trigger="hover" placement="right">
                 <div style="font-size: 12">
@@ -583,20 +582,6 @@
                 localStorage.setItem('processfilter', vmm.processfilter)
               }
             )
-          },
-          send: function () {
-            let data = {
-              reqType: 10003,
-              target: {
-                hosts: vm.selectHostNodes,
-                groups: vm.selectGroupNodes
-              },
-              commands: {
-                code: 1000,
-                cmds: [editor.getValue()]
-              }
-            }
-            webSocket.send(JSON.stringify(data))
           },
           resetCmds() {
             editor.setValue('')

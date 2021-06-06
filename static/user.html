@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Monitor</title>
+    <style type="text/css">
+      @import url('lib/element-ui/theme-chalk/index.css');
+
+      body {
+        margin: 0;
+        padding: 0;
+      }
+
+      h1 {
+        color: #ffffff;
+        height: 64px;
+        min-width: 300px;
+        margin: 0;
+        padding: 0;
+      }
+
+      .el-table th > .cell {
+        padding: 0 14px;
+      }
+
+      .el-table td,
+      .el-table th {
+        padding: 3px 0;
+      }
+
+      .el_col {
+        padding: 0 10px;
+        height: 100%;
+      }
+
+      .el_col_left {
+        border-right: 1px gainsboro dashed;
+        height: calc(100vh - 65px);
+        overflow: scroll;
+      }
+
+      .el_col_right {
+        height: calc(100vh - 65px);
+        overflow: scroll;
+        padding-bottom: 10px;
+      }
+
+      .el-card__body {
+        padding: 0 20px;
+      }
+
+      [v-cloak] {
+        display: none;
+      }
+
+      .el-table--enable-row-transition .el-table__body td {
+        padding: 0;
+      }
+
+      .el-card__body {
+        padding: 0;
+      }
+
+      .box-card {
+        width: 100%;
+      }
+
+      .el-card {
+        border: 1px solid lightgray;
+        margin-top: 20px;
+      }
+
+      .el-header {
+        line-height: 60px;
+      }
+
+      .el-header,
+      .el-footer,
+      .el-main {
+        background-color: #333;
+      }
+
+      .el-tooltip__popper {
+        max-width: 30%;
+      }
+
+      .el-tooltip__popper,
+      .el-tooltip__popper.is-dark {
+        background: #0c0c0c !important;
+        color: #e2e5eb !important;
+      }
+
+      .el-tabs__item:focus.is-active.is-focus:not(:active) {
+        -webkit-box-shadow: none;
+        box-shadow: none;
+        border-radius: 0;
+      }
+
+      .rect {
+        width: 12px;
+        height: 3px;
+        margin-right: 1px;
+        text-align: center;
+        display: block;
+        background-repeat: no-repeat;
+        background-position: 0 0;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="app" v-cloak>
+      <div style="height: 100vh">
+        <meta charset="UTF-8" />
+        <!-- @tab-click="handleClick" -->
+        <el-tabs v-model="activeName">
+          <el-tab-pane label="我的监控" name="first" style="margin-left: 30px">
+            <user-orders></user-orders>
+          </el-tab-pane>
+          <el-tab-pane label="我的自选" name="second">我的自选</el-tab-pane>
+          <el-tab-pane label="我的持仓" name="third">我的持仓</el-tab-pane>
+        </el-tabs>
+      </div>
+    </div>
+    <script type="text/javascript" src="lib/vue/vue.js"></script>
+    <script type="text/javascript" src="js/http-vue-loader.js"></script>
+    <script type="text/javascript" src="lib/element-ui/index.js"></script>
+    <script type="text/javascript" src="js/jquery-2.1.1.min.js"></script>
+    <script type="text/javascript" src="js/ace.js"></script>
+    <script type="text/javascript" src="js/ext-language_tools.js"></script>
+    <script type="text/javascript" src="js/ace.hint.js"></script>
+    <script type="text/javascript" src="js/echarts.min.js"></script>
+    <script type="text/javascript" src="js/echarts-gl.min.js"></script>
+    <script type="text/javascript" src="js/ecStat.min.js"></script>
+    <script type="text/javascript" src="js/dataTool.min.js"></script>
+    <script type="text/javascript" src="js/china.js"></script>
+    <script type="text/javascript" src="js/world.js"></script>
+    <script type="text/javascript" src="theme/echarts_dark_theme.js"></script>
+    <script type="text/javascript" src="js/charts-service.js"></script>
+    <script type="text/javascript" src="js/plotly-latest.min.js"></script>
+    <script type="text/javascript" src="js/color-hash.js"></script>
+    <script type="text/javascript" src="js/colors-gen.js"></script>
+    <script type="text/javascript" src="js/axios.min.js"></script>
+    <script>
+      var process_name_map = {} // key:pid value:pname
+      Vue.component('account', {
+        template: '<h1>Orange Resource Monitor</h1>' // template 是 Vue 中的关键字，不能改。
+      })
+      Vue.prototype.$http = Plotly.d3
+      Vue.use(httpVueLoader)
+      // Vue.js
+      var vm = new Vue({
+        el: '#app',
+        data: {
+          display_cols: [
+            'ID',
+            '股票名字',
+            '今日开盘价',
+            '昨日收盘价',
+            '当前价格',
+            '今日最高价',
+            '今日最低价',
+            '竞买价',
+            '竞卖价',
+            '成交股票数',
+            '成交金额',
+            '日期'
+          ],
+          activeName: 'first'
+        },
+        mounted() {
+          window.parent.vm.loading = false
+        },
+        created() {
+          this.fecth_data()
+          console.log(this.$http)
+        },
+        methods: {
+          fecth_data: function () {
+            var that = this
+            this.$http.json(`/user/list`, function (err, data) {
+              console.log(this)
+              console.log(data)
+              that.tableData = data
+              that.loading = false
+            })
+          },
+          send: function () {
+            let data = {
+              code: 10003,
+              message: 'hello'
+            }
+            this.webSocket.send(JSON.stringify(data))
+          }
+        },
+        components: {
+          userOrders: 'url:./pages/component/user/orders.vue'
+        }
+      })
+      document.onkeydown = function (e) {
+        var keyCode = e.keyCode || e.which || e.charCode
+        var ctrlKey = e.ctrlKey
+        if (ctrlKey && keyCode == 82) {
+          vm.query_range()
+          e.preventDefault()
+          return false
+        }
+      }
+    </script>
+  </body>
+</html>

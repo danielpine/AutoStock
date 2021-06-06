@@ -1,4 +1,3 @@
-
 from flask import (Flask, Response, escape, jsonify,
                    redirect, request, session, url_for)
 app = Flask(__name__, static_url_path='')
