@@ -41,7 +41,8 @@ class StockMonitor(db.Model):
         db.DateTime(timezone=True), default=datetime.datetime.now, onupdate=datetime.datetime.now)
 
     __table_args__ = (
-        UniqueConstraint('stock_id', 'user_id'),
+        UniqueConstraint('stock_id', 'user_id',
+                         'monitoring_type', 'threshold_value'),
     )
 
     def __json__(self):

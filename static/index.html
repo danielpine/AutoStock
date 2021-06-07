@@ -142,12 +142,53 @@
         .onMessage(function (event) {
           console.log(this)
           mes = JSON.parse(event.data)
-          Vue.prototype.$notify({
-            title: mes.message,
-            message: mes.data,
-            type: 'success',
-            duration: 2000
-          })
+          console.log(mes)
+          for (i in mes.data) {
+            console.log(i)
+            Vue.prototype.$notify({
+              title: mes.message,
+              message: mes.data[i].message,
+              type: 'success'
+            })
+            function notify() {
+              let n = new Notification('Argo Trading', {
+                body: mes.data[i].message,
+                icon: 'http:localhost:5000/image/iocn.png'
+              })
+              n.onclick = function (e) {
+                window.open(
+                  'http://localhost:5000/stock/' + mes.data[i].stock_id
+                )
+                console.log(1, e)
+              }
+              // n.close()
+              n.onerror = function (e) {
+                console.log(2, e)
+              }
+              n.onshow = function (e) {
+                console.log(3, e)
+              }
+              n.onclose = function (e) {
+                console.log(4, e)
+              }
+            }
+            if (undefined !== window.Notification) {
+              if (Notification.permission === 'default') {
+                Notification.requestPermission(function () {
+                  if (Notification.permission === 'granted') {
+                    // 用户点击了允许
+                    notify()
+                  } else if (Notification.permission === 'denied') {
+                    // 用户点击了拒绝
+                  } else {
+                    // 用户没有做决定
+                  }
+                })
+              } else {
+                notify()
+              }
+            }
+          }
         })
         .build()
       var vm = new Vue({
