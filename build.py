@@ -29,7 +29,7 @@ class PyinstallerCefpython:
         # 相当于执行打包命令： Pyinstaller hello_world.py
         print("*******开始打包cefpython3应用：", self.script_file)
         subprocess.run(
-            "Pyinstaller --noconsole --hidden-import json {}".format(self.script_file))
+            "pyinstaller --version-file=version_info.txt --icon=favicon.ico --noconsole --hidden-import json {}".format(self.script_file))
 
     def copytree(self, src, dst, ignores_suffix_list=None):
         print("********正在复制将{}目录下的文件复制到{}文件夹下....".format(src, dst))
