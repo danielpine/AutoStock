@@ -207,9 +207,9 @@ module.exports = {
     resetTemp() {
       this.temp = {
         id: undefined,
-        stock_id: 'sz000069',
-        threshold_value: '2.78',
-        threshold_type: 'percent',
+        stock_id: 'sz000068',
+        threshold_value: '2.73',
+        threshold_type: 'absolute',
         status: '0',
         user_id: 'default',
         over_limit: 1,

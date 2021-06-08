@@ -69,38 +69,6 @@
               <i :class="menu.icon"></i>
               <span slot="title">{{menu.label}}</span>
             </el-menu-item>
-            <!-- <el-menu-item index="0">
-              <i class="el-icon-orange"></i>
-              <span slot="title">Monitor</span>
-            </el-menu-item>
-            <el-menu-item index="1.1">
-              <i class="el-icon-setting"></i>
-              <span slot="title">Settings</span>
-            </el-menu-item>
-            <el-menu-item index="1.2">
-              <i class="el-icon-finished"></i>
-              <span slot="title">Execute</span>
-            </el-menu-item>
-            <el-menu-item index="2">
-              <i class="el-icon-monitor"></i>
-              <span slot="title">Host & Group</span>
-            </el-menu-item>
-            <el-menu-item index="3">
-              <i class="el-icon-s-operation"></i>
-              <span slot="title">Scripts</span>
-            </el-menu-item>
-            <el-menu-item index="4">
-              <i class="el-icon-odometer"></i>
-              <span slot="title">Dashboard</span>
-            </el-menu-item>
-            <el-menu-item index="5">
-              <i class="el-icon-truck"></i>
-              <span slot="title">Stream</span>
-            </el-menu-item>
-            <el-menu-item index="6">
-              <i class="el-icon-document"></i>
-              <span slot="title">Document</span>
-            </el-menu-item> -->
           </el-menu>
           <el-button
             style="
@@ -187,6 +155,10 @@
               } else {
                 notify()
               }
+            } else if (undefined !== window.NotificationCef) {
+              console.log(window.NotificationCef)
+            } else {
+              console.log('Not support window.Notification')
             }
           }
         })

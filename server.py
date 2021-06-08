@@ -32,6 +32,7 @@ from config import APP_SETTINGS, status
 from database import db
 from models import StockMonitor
 from monitor import trigger
+from plugins.cef_application import Application
 from scheduler import scheduler, user_socket_list
 from util import result
 from util.logger import log
@@ -39,7 +40,6 @@ from util.utils import AutoJSONEncoder
 
 sockets = Sockets(app)
 db.create_all()
-
 # http://suggest3.sinajs.cn/suggest/type=&key=华控&name=a
 # 通达信
 
@@ -88,6 +88,7 @@ def orange():
 @app.route('/')
 def index():
     return app.send_static_file('index.html')
+    # return '<h1>233</h1>'
 
 
 @app.route('/query_price/<ids>')
@@ -118,21 +119,31 @@ def add():
     return result.success(data=json.dumps(mon, cls=AutoJSONEncoder, indent=2))
 
 
+def server_start():
+    server = WSGIServer(('0.0.0.0', 5000),
+                        app,
+                        handler_class=WebSocketHandler,
+                        log=log)
+    server.serve_forever()
+
+
 def bootstrap(onServerClose=None, beforeServerStartup=None):
+
     if beforeServerStartup:
         beforeServerStartup()
+
     ENV = APP_SETTINGS.prop('application.env')
+
     if ENV == 'DEV':
         log.info(u'Started Starting as DEV')
-        # app.run(threaded=True, use_reloader=False)
-        app.run(threaded=True)
+        server_start()
     else:
         log.info(u'Started Starting as PRO')
-        server = WSGIServer(('0.0.0.0', 5000),
-                            app,
-                            handler_class=WebSocketHandler,
-                            log=log)
-        server.serve_forever()
+        flask_thread = threading.Thread(target=server_start, args=())
+        flask_thread.setDaemon(True)
+        flask_thread.start()
+        Application().startup()
+
     if onServerClose:
         onServerClose()
 
@@ -157,7 +168,5 @@ def shutdown_scheduler(a):
 
 
 if __name__ == "__main__":
-    bootstrap(
-        beforeServerStartup=start_scheduler_thread,
-        onServerClose=scheduler.shutdown
-    )
+    bootstrap(beforeServerStartup=start_scheduler_thread,
+              onServerClose=scheduler.shutdown)

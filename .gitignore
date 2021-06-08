@@ -1,2 +1,7 @@
 __pycache__
 /stock.db
+/build/
+/dist/
+/server.log
+/toast.ps1
+/server.spec

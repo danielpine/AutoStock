@@ -1,7 +1,7 @@
-from util import result
 from util.utils import csv_content_to_json
 from api.price_provider import get_info_from_sina
 from models import StockMonitor
+from plugins import toast
 
 
 def check_stock_value():
@@ -29,6 +29,7 @@ def check_stock_value():
                 mes = 'stock_code %s current  %s reach threshold_value %s ,threshold_type %s monitoring_type %s' % (
                     stock_code, curr_price, tv, tt, mt)
                 print('***', mes)
+                toast.show("Algo Trading", mes)
                 response.append(
                     {
                         'id': stock_code,
