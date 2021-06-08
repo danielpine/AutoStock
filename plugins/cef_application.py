@@ -230,7 +230,7 @@ class Application(tk.Frame):
         self.root.geometry("1366x640")
         flask_thread = threading.Thread(
             target=self.create_SysTrayIcon, args=())
-        flask_thread.setDaemon(True)
+        # flask_thread.setDaemon(True)
         flask_thread.start()
         self.root.protocol('WM_DELETE_WINDOW', self.root.withdraw)
         tk.Frame.__init__(self, self.root)

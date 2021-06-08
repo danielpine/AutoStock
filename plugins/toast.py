@@ -8,3 +8,7 @@ def show(title, message):
     toast.setTitle(title, maxLines=2)
     toast.setMessage(message, maxLines=2)
     toast.show()
+
+
+if __name__=='__main__':
+    show('title', 'message')
