@@ -5,6 +5,7 @@ import shutil
 import tinyWinToast
 import posixpath
 
+
 class PyinstallerCefpython:
     def __init__(self):
         self.no_suffix_script_name = "server"
@@ -28,10 +29,11 @@ class PyinstallerCefpython:
         subprocess.run(
             [
                 "Pyinstaller",
-                "--noconsole",
-                "--version-file", "version_info.txt",
                 "--icon", "favicon.ico",
+                "--version-file", "version_info.txt",
                 "--hidden-import", "json",
+                "-D",
+                "-w",
                 # "--add-data", ".\\static\\*;.\\static",
                 # "--add-data", ".\\config\\*;.\\config",
                 # "--add-data", "{}\\*;.".format(self.cef_dir),
@@ -44,7 +46,7 @@ class PyinstallerCefpython:
         if not os.path.exists(dst):  # 如不存在目标目录则创建
             os.makedirs(dst)
         files = os.listdir(src)  # 获取文件夹中文件和目录列表
-        os.sep = '/' 
+        os.sep = '/'
         for f in files:
             exclude = False
             for suffix in ignores_suffix_list:
@@ -62,7 +64,10 @@ class PyinstallerCefpython:
                         abs_dst_file,
                         ignores_suffix_list)  # 递归调用本函数
                 else:
-                    shutil.copy(abs_src_file, abs_dst_file)  # 拷贝文件
+                    try:
+                        shutil.copy(abs_src_file, abs_dst_file)  # 拷贝文件
+                    except Exception as e:
+                        print(e)
                     print('copied  '+abs_dst_file)
 
     def solve_dependence(self):
