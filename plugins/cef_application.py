@@ -144,7 +144,7 @@ class SysTrayIcon (object):
         if exit and s.on_quit:
             win32gui.Shell_NotifyIcon(win32gui.NIM_DELETE, nid)
             win32gui.PostQuitMessage(0)  # 终止应用程序。
-            s.on_quit()  # 需要传递自身过去时用 s.on_quit(s)
+            s.on_quit(s)  # 需要传递自身过去时用 s.on_quit(s)
         else:
             s.root.deiconify()  # 显示tk窗口
 
@@ -224,13 +224,15 @@ class SysTrayIcon (object):
 
 class Application(tk.Frame):
     navigation_bar = None
+    icon = os.path.join(os.path.abspath('.'), 'static/image/favicon.ico')
 
     def __init__(self, url='http://127.0.0.1:5000/'):
         self.root = tk.Tk()
+        self.root.iconbitmap(self.icon)
         self.root.geometry("1366x640")
         flask_thread = threading.Thread(
             target=self.create_SysTrayIcon, args=())
-        # flask_thread.setDaemon(True)
+        flask_thread.setDaemon(True)
         flask_thread.start()
         self.root.protocol('WM_DELETE_WINDOW', self.root.withdraw)
         tk.Frame.__init__(self, self.root)
@@ -257,14 +259,13 @@ class Application(tk.Frame):
         s.SysTrayIcon.refresh(title=title, msg=msg, time=time)
         pass
 
-    def create_SysTrayIcon(s, icon='static/image/favicon.ico', hover_text="Auto Stock"):
+    def create_SysTrayIcon(s, hover_text="Auto Stock"):
         '''隐藏窗口至托盘区，调用SysTrayIcon的重要函数'''
         # 托盘图标右键菜单, 格式: ('name', None, callback),下面也是二级菜单的例子
         # 24行有自动添加‘退出’，不需要的可删除
         menu_options = (('一级 菜单', None, s.switch_icon),
                         ('二级 菜单', None, (('更改 图标', None, s.switch_icon), )))
-        icon = os.path.join(os.path.abspath('.'), icon)
-        print(icon)
+        icon = os.path.join(os.path.abspath('.'), s.icon)
         s.SysTrayIcon = SysTrayIcon(
             icon,  # 图标
             hover_text,  # 光标停留显示文字
@@ -274,17 +275,15 @@ class Application(tk.Frame):
         )
         s.SysTrayIcon.activation()
 
-    def test(s):
-        print('exit...')
-
     def exit(s, _sysTrayIcon=None):
-        s.root.destroy()
-        print('exit...')
+        print('quit...')
+        s.root.quit()
 
     def startup(self):
         cef.Initialize()
         self.root.mainloop()
         cef.Shutdown()
+        print('Application ended')
         os._exit(0)
 
     def on_configure(self, event):
