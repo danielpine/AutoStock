@@ -1,3 +1,4 @@
+import pywintypes
 import ctypes
 import logging
 import os
@@ -77,7 +78,7 @@ class SysTrayIcon (object):
 
         win32gui.PumpMessages()
 
-    def refresh(s, title='', msg='', time=500):
+    def refresh(s, title='', msg='111', time=500):
         '''刷新托盘图标
            title 标题
            msg   内容，为空的话就不显示提示
@@ -139,7 +140,6 @@ class SysTrayIcon (object):
         s.refresh()
 
     def destroy(s, hwnd=None, msg=None, wparam=None, lparam=None, exit=1):
-        print('destroy')
         nid = (s.hwnd, 0)
         if exit and s.on_quit:
             win32gui.Shell_NotifyIcon(win32gui.NIM_DELETE, nid)
@@ -236,7 +236,7 @@ class Application(tk.Frame):
         flask_thread.start()
         self.root.protocol('WM_DELETE_WINDOW', self.root.withdraw)
         tk.Frame.__init__(self, self.root)
-        self.master.title("")
+        self.master.title("Auto Stock")
         self.bind("<Configure>", self.on_configure)
         self.browser_frame = BrowserFrame(
             self, self.navigation_bar, url=url)  # 浏览器框架
@@ -265,6 +265,7 @@ class Application(tk.Frame):
         # 24行有自动添加‘退出’，不需要的可删除
         menu_options = (('一级 菜单', None, s.switch_icon),
                         ('二级 菜单', None, (('更改 图标', None, s.switch_icon), )))
+        menu_options = ()
         icon = os.path.join(os.path.abspath('.'), s.icon)
         s.SysTrayIcon = SysTrayIcon(
             icon,  # 图标
@@ -304,12 +305,42 @@ class BrowserFrame(tk.Frame):
         tk.Frame.__init__(self, master)
         self.bind("<Configure>", self.on_configure)
         self.url = url
+        self.master = master
+
+    def PyAlert(s, msg):
+        print('calling PyAlert()')
+        s.master.SysTrayIcon.refresh(title='Algo Trading', msg=msg, time=500)
+        # hwnd = pywintypes.HANDLE(int(s.master.root.frame(), 16))
+        # # win32gui.MessageBox(hwnd, msg,
+        # #                     "PyAlert()", win32con.MB_ICONQUESTION)
+        # message = win32gui.NIM_ADD
+        # ico_x = win32api.GetSystemMetrics(win32con.SM_CXSMICON)
+        # ico_y = win32api.GetSystemMetrics(win32con.SM_CYSMICON)
+        # hicon = win32gui.LoadImage(
+        #     0,  os.path.join(os.path.abspath('.'), 'favicon.ico'),
+        #     win32con.IMAGE_ICON,
+        #     ico_x,
+        #     ico_y,
+        #     win32con.LR_LOADFROMFILE)
+        # s.notify_id = (hwnd, 0,  # 句柄、托盘图标ID
+        #                # 托盘图标可以使用的功能的标识
+        #                win32gui.NIF_ICON | win32gui.NIF_MESSAGE | win32gui.NIF_TIP | win32gui.NIF_INFO,
+        #                win32con.WM_USER + 20, hicon, 'Auto Stock',  # 回调消息ID、托盘图标句柄、图标字符串
+        #                msg, 500, 'Algo Trading',   # 提示内容、提示显示时间、提示标题
+        #                win32gui.NIIF_INFO  # 提示用到的图标
+        #                )
+        # win32gui.Shell_NotifyIcon(message, s.notify_id)
 
     def embed_browser(self):
         window_info = cef.WindowInfo()
         rect = [0, 0, self.winfo_width(), self.winfo_height()]
         window_info.SetAsChild(self.get_window_handle(), rect)
         self.browser = cef.CreateBrowserSync(window_info, url=self.url)
+
+        bindings = cef.JavascriptBindings(
+            bindToFrames=True, bindToPopups=True)
+        bindings.SetFunction("alert", self.PyAlert)
+        self.browser.SetJavascriptBindings(bindings)
         self.message_loop_work()
 
     def get_window_handle(self):  # 获取窗口句柄
